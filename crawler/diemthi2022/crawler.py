@@ -19,19 +19,21 @@ logger = LoggerSimple(name=__name__).logger
 
 def get_info(sbd):
     # url_api = 'https://diemthi.tuoitre.vn/search-thpt-score'
-    url_api = 'https://diemthi.tuoitre.vn/csv-thpt-score'
-    body = {"data": sbd, "code": ""}
+    # url_api = 'https://diemthi.tuoitre.vn/csv-thpt-score'
+    url_api = f'https://dantri.com.vn/thpt/1/0/99/{sbd}/2023/0.2/search-gradle.htm'
+    # body = {"data": sbd, "code": ""}
     data_exam = None
 
     try:
-        response = requests.post(url=url_api, data=body)
+        # response = requests.post(url=url_api, data=body)
+        response = requests.get(url=url_api)
         # logger.info(f'{sbd} - {response.text}')
         if response.status_code == 200:
             data = response.json()
-            if data.get('info'):
+            if data.get('student') and data.get('student').get('sbd') is not None:
                 # result =
                 # logger.info(response.text)
-                data_exam = data.get('info')
+                data_exam = data.get('student')
                 # logger.info(f"{sbd} - {data_exam.get('score')}")
     except Exception as e:
         log_error(e)
@@ -43,13 +45,15 @@ def get_info(sbd):
 async def get_info_async(sbd):
     # url_api = 'https://diemthi.tuoitre.vn/search-lop10-score'
     # url_api = 'https://diemthi.tuoitre.vn/search-thpt-score'
-    url_api = 'https://diemthi.tuoitre.vn/csv-thpt-score'
+    # url_api = 'https://diemthi.tuoitre.vn/csv-thpt-score'
+    url_api = f'https://dantri.com.vn/thpt/1/0/99/{sbd}/2023/0.2/search-gradle.htm'
     body = {"data": sbd, "code": ""}
     data_exam = None
     header = {
         'user-agent': get_user_random_agent(),
         # 'cookie': 'G_ENABLED_IDPS=google; fpsend=149436; __zi=3000.SSZzejyD3CiaW_sbrKeErsE1gRkRH1QKFvEZf8a6188lrRBZnmC5ncNTjkp33K_1Ojp-xCSEJyPatFlg.1',
-        'cookie': '_ttsid=cd90f0286ee983b48df479eed2a1a6cef2a347c00b22d719e59377b8437e5216',
+        # 'cookie': '_ttsid=cd90f0286ee983b48df479eed2a1a6cef2a347c00b22d719e59377b8437e5216',
+        'cookie': 'uuid=72e1b7ed-17b1-4a50-b730-686522cc0801; menu_home_v2=menu_home_v2; title_newest_v2=title_newest_v2; title_article_lot_v2=title_article_lot_v2; _pk_id.6.0a2f=358b0b91d699c785.1684980667.; _ga=GA1.1.666941059.1642398522; _clck=c7dopm|2|fbw|0|1240; _cc_id=49d8f8e622b692da1207999694a54363; cto_bundle=AN9FG19EMVZBM2ZYYjhDcFhXJTJGUmpRJTJGY1kwbk9RS2JKb1lKcWlhd2NQb1REbFlnVEJYMU9rWXAwdldnZzFNaG1VUVFwMEpBJTJGRnB2SENFc1FFcjBSSHV5VDRKa1ZMUHdPJTJGUTl3cm96SldMNUxoJTJGM0JjTFB2OVVyQ2pWNkV4bVJkRmdQOU40aUVWYThjcTdTb3AwVUpFdnNqSElnJTNEJTNE; __gads=ID=7cb5f7c4d736d7b3:T=1684980668:S=ALNI_MbAiG6eymWQ6aGb5DCNr2pzSLeiLg; __gpi=UID=00000c0a533c9709:T=1684980668:RT=1684980668:S=ALNI_Matg-m18GW-U0485ifYGa8fCT8URQ; FCNEC=%5B%5B%22AKsRol90W6s7AODlJ7JK0o7fboor8ydh5ZZX0um1306FFtRA23I8tCegl69WbN7ljHvCr9wbvC3E1sSIOMCP7YEoV-OjSkEc40RxA6aASUxs78ch9Ymp3tFriFT8G3zOqC7Sn91CfzE0LDBfQiii-b6hUaIvgefccg%3D%3D%22%5D%2Cnull%2C%5B%5D%5D; _ga_E9JBQPRHRK=GS1.1.1684980667.1.1.1684980727.60.0.0; _ga_7SV2MJP43D=GS1.1.1684980668.1.1.1684980727.1.0.0; g_state={"i_p":1689517031489,"i_l":4}; menu_home_v3=menu_home_v3; .AspNetCore.Mvc.CookieTempDataProvider=CfDJ8Cc9GpixYQBGtnSGB6wzi1Ee7uh9AN1TJEPgMNQjucCUbx-4TeB5Atu-6g1yThWG05WLlAloOLGYRGyTUsZQo9BHIsvQWmG2MqYbHS5OA61m1ZAsT6E0cm49CdwrgSOAjOGLjnixxqlhuQrYwJr_m48Rc88HxkEVsNcEed5xTiyWnWL8Fu1Vr67wBqag_Ipsiw',
     }
     retry = 0
     max_retry = 3
@@ -57,16 +61,17 @@ async def get_info_async(sbd):
         retry += 1
         try:
             async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as session:
-                async with session.post(url=url_api, headers=header, data=body, timeout=60) as res:
+                # async with session.post(url=url_api, headers=header, data=body, timeout=60) as res:
+                async with session.get(url=url_api, headers=header, timeout=60) as res:
                     if res.status == 200:
                         response = await res.text()
                         # logger.info(f'{sbd} - {response}')
                         data = await res.json()
                         # logger.info(f'{data.get("data")}')
-                        if data.get('info'):
+                        if data.get('student') and data.get('student').get('sbd') is not None:
                             # result =
                             # logger.info(response.text)
-                            data_exam = data.get('info')
+                            data_exam = data.get('student')
                             # logger.info(f"{sbd} - {data_exam}")
         except Exception as e:
             log_error(e)
